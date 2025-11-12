@@ -1390,22 +1390,6 @@ def main(key, peak_omega, a0, fit_gains=True):
         'HT6': HT6,
         'HTT': HTT
         }
-    
-    '''
-    # Load NeuroMaps
-    maps = {name: np.load(neuro_path + f'{name}_parc.npy') for name in
-            ['H3', 'CB1', 'D1', 'D2', 'DAT', 'GABAa', 'A4B2', 'M1', 'VAChT',
-             'MOR', 'NET', 'NMDA', 'mGLUR5', 'HT1A', 'HT1B', 'HT2A', 'HT4', 'HT6', 'HTT']}
-
-    if key in ['PlanDay', 'MentalMath']:
-        selected = ['D2', 'DAT', 'HT1B', 'MOR', 'HT6']
-    elif key == 'Meditation':
-        selected = ['D1', 'HT1A', 'CB1', 'NMDA', 'A4B2']
-    else:
-        raise ValueError(f'Unknown key: {key}')
-
-    neuromaps = {k: maps[k] for k in selected}
-    '''
 
     norm_neuromaps = []
 
@@ -1417,10 +1401,6 @@ def main(key, peak_omega, a0, fit_gains=True):
         R_norm = (R_tilde) / (R_max - R_min) - R_min
         
         norm_neuromaps.append(R_norm.squeeze())
-
-    #T = erf(t1t2_map)
-    #T_max, T_min = T.max(), T.min()
-    #h_map = (T_max - T) / (T_max - T_min)
 
     ch_names = raw.info['ch_names']
     n_channels = len(ch_names)
@@ -1455,12 +1435,7 @@ def main(key, peak_omega, a0, fit_gains=True):
     empPSD = torch.tensor(psd.get_data(), dtype=torch.float32, device='cuda')
 
     lm0 = np.load(data_path + 'struct_data/danny_leadfield.npy')
-
-    #wll0 = np.zeros((node_size, node_size)) + 0.05
-    #wll0 = np.load(data_path + 'struct_data/danny_ec_wll.npy')
-
     wll0 = np.load(data_path + 'struct_data/danny_wll.npy')
-    #wll0 = np.load(data_path + 'struct_data/danny_wll_NNM.npy')
 
     params = ParamsHP(a=par((a0, -0.001), fit_par=True, fit_hyper=False, 
                             use_heterogeneity=True, h_maps=norm_neuromaps, param_bounds=(-0.8, 0.0)), 
