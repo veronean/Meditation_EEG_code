@@ -13,6 +13,7 @@ import pickle
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics import r2_score
 from scipy.special import erf
+from pathlib import Path
 
 warnings.filterwarnings('ignore')
 torch.cuda.empty_cache()
@@ -20,11 +21,6 @@ torch.cuda.reset_accumulated_memory_stats()
 
 import sys
 import mne
-
-dir_path = '/home/veronese/Project/colab/'
-folder_path = '/home/veronese/Project/colab/Modelling_JR/'
-hopf_path =  '/data/veronese/Hopf/'
-neuro_path = '/home/veronese/Project/colab/neuromaps/'
 
 def Scaler(pred, target, eps=1e-8):
     """
@@ -1340,34 +1336,38 @@ class CostsHP(AbstractLoss):
 
 def main(key, peak_omega, a0, fit_gains=True):
     # Set the path to the folder containing the data
-    data_path = '/home/veronese/Project/colab/danny_data/'
-    data_path_clean = '/home/veronese/Project/colab/danny_data/clean_data/'
-    file_name = data_path_clean + f'sub27sess02_{key}.fif'
+    repo_root = Path(__file__).resolve().parent
+
+    struct_data_folder = repo_root / 'struct_data'
+    conn_data_folder = repo_root / 'conn_data'
+    data_folder = repo_root / 'data'
+    neuromaps_folder = repo_root / 'neuromaps'
 
     # Load a .set file
+    file_name = data_folder / f'sub27sess02_{key}.fif'
     raw = mne.io.read_raw_fif(file_name, preload=True)
 
     # Load NeuroMaps
-    t1t2_map = np.load(neuro_path + 'T1T2_parc.npy')
-    H3 = np.load(neuro_path + 'H3_parc.npy')
-    CB1 = np.load(neuro_path + 'CB1_parc.npy')
-    D1 = np.load(neuro_path + 'D1_parc.npy')
-    D2 = np.load(neuro_path + 'D2_parc.npy')
-    DAT = np.load(neuro_path + 'DAT_parc.npy')
-    GABAa = np.load(neuro_path + 'GABAa_parc.npy')
-    A4B2 = np.load(neuro_path + 'A4B2_parc.npy')
-    M1 = np.load(neuro_path + 'M1_parc.npy')
-    VAChT = np.load(neuro_path + 'VAChT_parc.npy')
-    MOR = np.load(neuro_path + 'MOR_parc.npy')
-    NET = np.load(neuro_path + 'NET_parc.npy')
-    NMDA = np.load(neuro_path + 'NMDA_parc.npy')
-    mGLUR5 = np.load(neuro_path + 'mGLUR5_parc.npy')
-    HT1A = np.load(neuro_path + 'HT1A_parc.npy')
-    HT1B = np.load(neuro_path + 'HT1B_parc.npy')
-    HT2A = np.load(neuro_path + 'HT2A_parc.npy')
-    HT4 = np.load(neuro_path + 'HT4_parc.npy')
-    HT6 = np.load(neuro_path + 'HT6_parc.npy')
-    HTT = np.load(neuro_path + 'HTT_parc.npy')
+    t1t2_map = np.load(neuromaps_folder / 'T1T2_parc.npy')
+    H3 = np.load(neuromaps_folder / 'H3_parc.npy')
+    CB1 = np.load(neuromaps_folder / 'CB1_parc.npy')
+    D1 = np.load(neuromaps_folder / 'D1_parc.npy')
+    D2 = np.load(neuromaps_folder / 'D2_parc.npy')
+    DAT = np.load(neuromaps_folder / 'DAT_parc.npy')
+    GABAa = np.load(neuromaps_folder / 'GABAa_parc.npy')
+    A4B2 = np.load(neuromaps_folder / 'A4B2_parc.npy')
+    M1 = np.load(neuromaps_folder / 'M1_parc.npy')
+    VAChT = np.load(neuromaps_folder / 'VAChT_parc.npy')
+    MOR = np.load(neuromaps_folder / 'MOR_parc.npy')
+    NET = np.load(neuromaps_folder / 'NET_parc.npy')
+    NMDA = np.load(neuromaps_folder / 'NMDA_parc.npy')
+    mGLUR5 = np.load(neuromaps_folder / 'mGLUR5_parc.npy')
+    HT1A = np.load(neuromaps_folder / 'HT1A_parc.npy')
+    HT1B = np.load(neuromaps_folder / 'HT1B_parc.npy')
+    HT2A = np.load(neuromaps_folder / 'HT2A_parc.npy')
+    HT4 = np.load(neuromaps_folder / 'HT4_parc.npy')
+    HT6 = np.load(neuromaps_folder / 'HT6_parc.npy')
+    HTT = np.load(neuromaps_folder / 'HTT_parc.npy')
 
     neuromaps = {
         'H3': H3,
@@ -1415,7 +1415,7 @@ def main(key, peak_omega, a0, fit_gains=True):
     print(freqs.shape)
 
     # Load connectivity matrix
-    atlas = pd.read_csv(folder_path + 'atlas_data.csv')
+    atlas = pd.read_csv(conn_data_folder / 'atlas_data.csv')
     labels = atlas['ROI Name']
     coords = np.array([atlas['R'], atlas['A'], atlas['S']]).T
 
@@ -1424,7 +1424,7 @@ def main(key, peak_omega, a0, fit_gains=True):
         for roi2 in range(coords.shape[0]):
             dist[roi1, roi2] = np.sqrt(np.sum((coords[roi1, :] - coords[roi2, :]) ** 2, axis=0))
 
-    sc_file = folder_path + 'Schaefer2018_200Parcels_7Networks_count.csv'
+    sc_file = conn_data_folder / 'Schaefer2018_200Parcels_7Networks_count.csv'
     sc_df = pd.read_csv(sc_file, header=None, sep=' ')
     sc = sc_df.values
     sc = np.log1p(sc) / np.linalg.norm(np.log1p(sc))
@@ -1434,8 +1434,8 @@ def main(key, peak_omega, a0, fit_gains=True):
 
     empPSD = torch.tensor(psd.get_data(), dtype=torch.float32, device='cuda')
 
-    lm0 = np.load(data_path + 'struct_data/danny_leadfield.npy')
-    wll0 = np.load(data_path + 'struct_data/danny_wll.npy')
+    lm0 = np.load(struct_data_folder / 'struct_data/leadfield.npy')
+    wll0 = np.load(struct_data_folder / 'struct_data/wll.npy')
 
     params = ParamsHP(a=par((a0, -0.001), fit_par=True, fit_hyper=False, 
                             use_heterogeneity=True, h_maps=norm_neuromaps, param_bounds=(-0.8, 0.0)), 
@@ -1473,12 +1473,12 @@ def main(key, peak_omega, a0, fit_gains=True):
     F.simulate(empPSD = empPSD)
 
     # Save fitting results to a file using pickle
+    results_folder = repo_root / 'Results'
+    results_folder.mkdir(exist_ok=True)
     if fit_gains:
-        store_filename = os.path.join(data_path, 'Results_Clean', 
-                                    f'sub27sess02_{key}_{loss_method}_{sched_type}_fitting_results2.pkl')
+        store_filename = results_folder / f'sub27sess02_{key}_{loss_method}_{sched_type}_fitting_results.pkl'
     else:
-        store_filename = os.path.join(data_path, 'Results_Clean', 
-                                    f'sub27sess02_{key}_{loss_method}_{sched_type}_NF_fitting_results2.pkl')
+        store_filename = results_folder / f'sub27sess02_{key}_{loss_method}_{sched_type}_NF_fitting_results.pkl'
         
     with open(store_filename, 'wb') as file:
         pickle.dump(F, file)
