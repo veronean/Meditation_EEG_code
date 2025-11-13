@@ -1112,21 +1112,21 @@ class Model_fitting(AbstractFitting):
             simPSD = self.model(debug_sim=False)
             loss = self.cost.loss(valPSD, simPSD, loss_method).to(device)
 
-            eps = 1e-8
-            valData = valPSD.detach().cpu().numpy()
-            simData = simPSD.detach().cpu().numpy()
+        eps = 1e-8
+        valData = valPSD.detach().cpu().numpy()
+        simData = simPSD.detach().cpu().numpy()
 
-            sim_rescaled = Scaler(pred=simData, target=valData)
+        sim_rescaled = Scaler(pred=simData, target=valData)
 
-            val_dB = 10 * np.log10(valData * 1e12 + eps)
-            sim_dB = 10 * np.log10(sim_rescaled * 1e12 + eps)
+        val_dB = 10 * np.log10(valData * 1e12 + eps)
+        sim_dB = 10 * np.log10(sim_rescaled * 1e12 + eps)
 
-            val_flat = val_dB.flatten().reshape(1, -1)
-            sim_flat = sim_dB.flatten().reshape(1, -1)
+        val_flat = val_dB.flatten().reshape(1, -1)
+        sim_flat = sim_dB.flatten().reshape(1, -1)
 
-            avg_corr = np.corrcoef(val_flat[0], sim_flat[0])[0, 1]
-            avg_cos_sim = cosine_similarity(val_flat, sim_flat)[0, 0]
-            r2 = r2_score(val_flat[0], sim_flat[0])
+        avg_corr = np.corrcoef(val_flat[0], sim_flat[0])[0, 1]
+        avg_cos_sim = cosine_similarity(val_flat, sim_flat)[0, 0]
+        r2 = r2_score(val_flat[0], sim_flat[0])
 
         return loss.item(), avg_corr, avg_cos_sim, r2
 
@@ -1158,31 +1158,31 @@ class Model_fitting(AbstractFitting):
             simPSD = self.model(debug_sim=False)
             test_loss = self.cost.loss(testPSD, simPSD, loss_method).to(device)
 
-            eps = 1e-8
-            testData = testPSD.detach().cpu().numpy()
-            simData = simPSD.detach().cpu().numpy()
+        eps = 1e-8
+        testData = testPSD.detach().cpu().numpy()
+        simData = simPSD.detach().cpu().numpy()
 
-            sim_rescaled = Scaler(pred=simData, target=testData)
+        sim_rescaled = Scaler(pred=simData, target=testData)
 
-            test_dB = 10 * np.log10(testData * 1e12 + eps)
-            sim_dB = 10 * np.log10(sim_rescaled * 1e12 + eps)
+        test_dB = 10 * np.log10(testData * 1e12 + eps)
+        sim_dB = 10 * np.log10(sim_rescaled * 1e12 + eps)
 
-            test_flat = test_dB.flatten().reshape(1, -1)
-            sim_flat = sim_dB.flatten().reshape(1, -1)
+        test_flat = test_dB.flatten().reshape(1, -1)
+        sim_flat = sim_dB.flatten().reshape(1, -1)
 
-            corr = np.corrcoef(test_flat[0], sim_flat[0])[0, 1]
-            cos_sim = cosine_similarity(test_flat, sim_flat)[0, 0]
-            r2 = r2_score(test_flat[0], sim_flat[0])
+        corr = np.corrcoef(test_flat[0], sim_flat[0])[0, 1]
+        cos_sim = cosine_similarity(test_flat, sim_flat)[0, 0]
+        r2 = r2_score(test_flat[0], sim_flat[0])
 
         # Save results to the attribute
         self.testStats = {
             "test_loss": test_loss.item(),
             "correlation": corr,
-            "cosine_similarity": cos_sim,
+            "cos_sim": cos_sim,
             "r2": r2
         }
 
-        print(f"Test Loss: {test_loss.item():.6f}, Correlation: {corr:.4f}, Cosine Sim: {cos_sim:.4f}")
+        print(f"Test Loss: {test_loss.item():.6f}, Correlation: {corr:.4f}, Cosine Sim: {cos_sim:.4f}, R2: {r2:.4f}")
 
     def simulate(self, empPSD: torch.Tensor, debug_sim=False):
         """
