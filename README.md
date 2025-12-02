@@ -32,7 +32,7 @@ Contains the empirical EEG data used for model fitting:
 ### 4. `neuromaps`
 
 Stores a collection of neurotransmitter receptor and transporter density maps used to introduce **regional heterogeneity** into the model's parameters:
-* Files like `T1T2_parc.npy`, `H3_parc.npy`, `D1_parc.npy`, `GABAa_parc.npy`, etc., are loaded and normalized to create the heterogeneity maps ($h\_maps$).
+* Files like `T1T2_parc.npy`, `H3_parc.npy`, `D1_parc.npy`, `GABAa_parc.npy`, etc., are loaded and normalized to create the heterogeneity maps (h_maps).
 
 ### 5. `Results`
 
