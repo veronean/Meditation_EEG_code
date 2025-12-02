@@ -116,7 +116,7 @@ The `COVHOPF` class implements the **Hopf Bifurcation Model** which simulates th
 ### **Cost Function (CostsHP)**
 
 The `CostsHP` class implements a composite cost function:
-$$\text{Total Loss} = w_{\text{cost}} \cdot \text{Loss}_{\text{main}} + \text{Loss}_{\text{prior}} + \text{Reg}_{\text{term}}$$
+$\text{Total Loss} = w_{\text{cost}} \cdot \text{Loss}_{\text{main}} + \text{Loss}_{\text{prior}} + \text{Reg}_{\text{term}}$
 
 * **Main Loss ($\text{Loss}_{\text{main}}$)**: Calculated between the $\text{log}_{10}$ of the simulated and empirical PSDs (in dB-space) using methods like `'mse'`, `'log\_fro'`, or `'pearson'`.
 * **Prior Loss ($\text{Loss}_{\text{prior}}$)**: A Bayesian regularization term that anchors parameters near their defined prior means ($\mu$) with respect to their prior variance ($\sigma^2$).
