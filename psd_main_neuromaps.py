@@ -1432,7 +1432,7 @@ def main(key, peak_omega, a0, fit_gains=True):
     node_size = sc.shape[0]
     output_size = n_channels
 
-    empPSD = torch.tensor(psd.get_data(), dtype=torch.float32, device='cuda')
+    empPSD = torch.tensor(psd.get_data(), dtype=torch.float32, device='cuda' if torch.cuda.is_available() else 'cpu')
 
     lm0 = np.load(struct_data_folder / 'struct_data/leadfield.npy')
     wll0 = np.load(struct_data_folder / 'struct_data/wll.npy')
